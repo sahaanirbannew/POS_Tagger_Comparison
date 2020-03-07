@@ -5,9 +5,14 @@ Date:               03.02.2020
 Input:              Preprocessed files from Corpus Reader in Pickle format. 
 Output:             Data Representation Files.
 Description:        The file contains the feature representation of the words in a sequential format. 
-Documentation Link: https://docs.google.com/document/d/1GoNc0w8WSi1TzxbzgRMrdPnGk7rg6wHxLoM-dikuuv0/edit?usp=sharing 
+Documentation Link: https://docs.google.com/document/d/1GoNc0w8WSi1TzxbzgRMrdPnGk7rg6wHxLoM-dikuuv0/edit?usp=sharing  
+
+Version History:
+Version |   Date    |  Change ID |  Changes 
+1.01                                Removed dead code. 
+1.01     07.03.2020                 Added the word at the start of the sequence of DRF. 
+
 """
-import base64 
 import re
 import pickle
 import nltk
@@ -15,13 +20,12 @@ nltk.download('punkt')
 from programmes import global_ as g_
 from nltk.tokenize import word_tokenize
 
-
-def set_to_dict(arr_a):
 """
 Description: Converts a set to a dictionay. It is needed because we want to save the features, tags as a dictionary. 
 Input:       Set (unique entries in a list)
 Output:      Dictionary (which maps the entry with a number.)    
 """
+def set_to_dict(arr_a):
   dict_a = {}
   index = 0
   for e in arr_a: 
@@ -29,13 +33,12 @@ Output:      Dictionary (which maps the entry with a number.)
     index = index + 1
   return dict_a
 
-
-def hasDot(word):
 """
 Description:    Checks if a word has a dot. 
 Input:          word 
 Output:         feature identifier
 """
+def hasDot(word):
   word = word.strip()  
   if "." in word: 
     return 'hasDot'
@@ -43,13 +46,12 @@ Output:         feature identifier
     return ''
   
   
-
-def isFirstLetterCaps(word):
 """
 Description:    Checks if a word has the first letter capital. 
 Input:          word 
 Output:         feature identifier
 """
+def isFirstLetterCaps(word):
   word = word.strip() 
   try: 
     if 65 <= ord(word[0]) and ord(word[0]) <= 90: 
@@ -59,13 +61,12 @@ Output:         feature identifier
   except: return ''
 
 
-
-def smallLettersCapitalLetters(word):
 """
 Description:    Checks if a word has a mix of small and capital letters. 
 Input:          word 
 Output:         feature identifier   
 """
+def smallLettersCapitalLetters(word):
   firstLetterCaps = isFirstLetterCaps(word) 
   if firstLetterCaps == '':
     i=1
@@ -75,13 +76,12 @@ Output:         feature identifier
       i = i+1
   return ''
 
-
-def areAllLettersCaps(word):
 """
 Description:    Checks if a word has all capital letters. 
 Input:          word 
 Output:         feature identifier   
 """ 
+def areAllLettersCaps(word):
   word = word.replace('.','')
   if(word):
     for letter in word: 
@@ -89,60 +89,55 @@ Output:         feature identifier
         return ''
   return "areAllLettersCaps"
 
-
-def containsDigit(word):
 """
 Description:    Checks if a word contains digit. 
 Input:          word 
 Output:         feature identifier   
 """
+def containsDigit(word):
   regex = r"\w*?\d"
   hmm = re.search(regex,word)
   if hmm is not None: return "containsDigit"
   else: return ''
 
-
-def hasHyphen(word):
 """
 Description:    Checks if a word contains Hyphen. 
 Input:          word 
 Output:         feature identifier   
 """
+def hasHyphen(word):
   regex = r"-"
   hmm = re.search(regex,word)
   if hmm is not None: return "hasHyphen"
   else: return ''
 
-
-def hasApostrophe(word):
 """
 Description:    Checks if a word contains Apostrophe. 
 Input:          word 
 Output:         feature identifier   
 """
+def hasApostrophe(word):
   regex = r"'"
   hmm = re.search(regex,word)
   if hmm is not None: return "hasApostrophe"
   else: return ''
 
-
-def containsCharacters(word):
 """
 Description:    Checks if a word contains special characters. 
 Input:          word 
 Output:         feature identifier   
 """
+def containsCharacters(word):
   regex = re.compile('[@_!#$%^&*()<>?/\|}{~:]')  
   if(regex.search(word) == None): return '' 
   else: return "containsSpCharacters"
 
-
-def return_ngram_set(word, n): 
 """
 Description:    Finds the ngrams of characters for a word and returns them. 
 Input:          word 
 Output:         List containing ngrams of characters.
 """
+def return_ngram_set(word, n): 
   no_of_characters = len(word)
   list_of_ngram = []
   start = 0  
@@ -152,13 +147,12 @@ Output:         List containing ngrams of characters.
     start = start + 1 
   return list_of_ngram
 
-
-def return_suffix_set(word): 
 """
 Description:    Finds all suffixes for a word and returns them. 
 Input:          word 
 Output:         List containing suffixes.
 """
+def return_suffix_set(word): 
   no_of_characters = len(word) * -1
   list_of_suffixes = []
   counter = -1 
@@ -168,13 +162,12 @@ Output:         List containing suffixes.
     counter = counter - 1 
   return list_of_suffixes
 
-
-def return_prefix_set(word): 
 """
 Description:    Finds all prefixes for a word and returns them. 
 Input:          word 
 Output:         List containing prefixes.
 """
+def return_prefix_set(word): 
   no_of_characters = len(word)
   list_of_prefixes = []
   counter = 1 
@@ -184,13 +177,12 @@ Output:         List containing prefixes.
     counter = counter + 1 
   return list_of_prefixes
 
-
-def get_encryption_for_words(word, counter, length_of_sentence, **params):  
 """
 Description:    Takes a word, returns the features needed. 
 Input:          word, word counter, length of the sentence, *params 
 Output:         features of the word, unique features of the word. 
 """ 
+def get_encryption_for_words(word, counter, length_of_sentence, **params):  
   # Initialising the variables; default value = '' 
   prefix = '' 
   suffix = '' 
@@ -202,6 +194,10 @@ Output:         features of the word, unique features of the word.
   suffix_set   = []
   ngram_set    = []
   features = []
+  
+  if params.get("all_words") == 1 and word != '': 
+    word_lower = word.lower()
+    features.append(word_lower) 
 
   if params.get("flc") == 1: 
     # check for other features, like isCapitalLetter? 
@@ -241,11 +237,8 @@ Output:         features of the word, unique features of the word.
     has_dot = hasDot(word)
     if has_dot != '': features.append(has_dot)
   
-  word = word.lower()
+  word = word.lower() #makes the word to lower case. 
   
-  if params.get("all_words") == 1 and word != '': 
-    features.append(word) 
-
   #counter, length_of_sentence
   if (params.get("is_EOS") == 1 and counter == length_of_sentence - 2): features.append('EOS')  
   if params.get("is_SOS") ==1 and counter == 0: features.append('SOS') 
@@ -268,13 +261,12 @@ Output:         features of the word, unique features of the word.
   
   return features, feature_set #encoded
 
-
-def get_list_of_words_encrypted_str(words, tags, **params): 
 """
 Description:    This function takes the words (array) and tags (array) and returns the main feature representation of the word.
 Input:          words (array), tags (array), *params 
 Output:         List of words, Feature set.
 """
+def get_list_of_words_encrypted_str(words, tags, **params): 
   flc = 0 
   alc = 0
   contains_digit = 0
@@ -346,13 +338,12 @@ Output:         List of words, Feature set.
 
   return list_of_words, feature_set
 
-
-def get_words_tags_from_line(line): 
 """
 Description:    This function gets the words and the tags as separate arrays, from the line and returns it to the calling function.
 Input:          Line
 Output:         words (array), POS Tags (array). 
 """
+def get_words_tags_from_line(line): 
   words = []
   posTags = []
 
@@ -368,8 +359,6 @@ Output:         words (array), POS Tags (array).
       pos = '' 
   return words, posTags
 
-
-def data_representation(line, conf_arr): 
 """
 Data representation function:
 - gets the feature representation of every word in the line.
@@ -377,6 +366,7 @@ Data representation function:
 Input:          Line
 Output:         words (array), POS Tags (array). 
 """
+def data_representation(line, conf_arr): 
   #line is array format.
   words, tags = get_words_tags_from_line(line) 
   
@@ -397,13 +387,12 @@ Output:         words (array), POS Tags (array).
   else:
     return []
 
-
-def export_sets(set_t, dataset_name, choice): 
 """
 Description:    Converts the set to a dictionary and exports them.  
 Input:          set, dataset_name, choice of file. 
 Output:         
 """
+def export_sets(set_t, dataset_name, choice): 
   #convert the sets to a dictionary
   dict_ = set_to_dict(set_t)
 
@@ -418,13 +407,12 @@ Output:
     pickle.dump(dict_, f) 
   f.close()
 
-
-def genertate_drf_files(filepath, config_num): 
 """
 Description:    Main function, reads file, generates Data Representation Files, logs the entry. 
 Input:          File path.  
 Output:         
 """
+def genertate_drf_files(filepath, config_num): 
   export_drf = []
   main_list = [] 
   tag_set = set()
@@ -468,13 +456,12 @@ Output:
   g_.log_entry("Data representation program for "+dataset_name+" ended.",g_.const_info)
   return "Data representation program for "+dataset_name+" ended."
 
-
-def export_drp_file(main_list, dataset_name):
 """
 Description:    Exports the data representation files. 
 Input:          list of words representations, dataset name.
 Output:     
 """
+def export_drp_file(main_list, dataset_name):
   # Giving the output.
   try:
     file_path = '/content/drf/drf_'+dataset_name+'.pkl'
@@ -488,13 +475,12 @@ Output:
     pickle.dump(main_list, file_op)
     file_op.close()
 
-
-def data_representation_testing(sentence, config_num): #not finalised yet.
 """
 Description:    Creates representation of words without the POS tags. 
 Input:          sentence, configuration number 
 Output:         feature representation of words, feature set. 
 """
+def data_representation_testing(sentence, config_num): #not finalised yet.
   proceed = 1 
   try: 
     conf_arr = g_.config_params[config_num] 
