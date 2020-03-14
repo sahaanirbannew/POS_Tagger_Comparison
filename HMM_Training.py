@@ -1,6 +1,6 @@
 import pickle
 import time
-#import hmm_decode_withFeatures_2 as decode
+
 
 # global variable declaration
 
@@ -39,6 +39,20 @@ def tagCount_secondOrder(corpus):
     Input :- corpus data read from corpus files 
     Output :- Dictionary with tag count for second order
     """
+    print("tagCount_secondOrder")
+    for i in corpus:
+        tag=i[0] 
+        if "SOS" in i[1]:
+            transtioninfo="START"+"->"+"START"
+            if transtioninfo in transition_secondOrder_p:
+                transition_secondOrder_p[transtioninfo]=transition_secondOrder_p[transtioninfo]+1 
+            else:
+                transition_secondOrder_p[transtioninfo]=1 
+            transtioninfo="START"+"->"+tag
+            if transtioninfo in transition_secondOrder_p:
+                transition_secondOrder_p[transtioninfo]=transition_secondOrder_p[transtioninfo]+1 
+            else:
+                transition_secondOrder_p[transtioninfo]=1 
     for previous_previous, previous in zip(corpus, corpus[1:]):        
         transtioninfo=previous_previous[0]+"->"+previous[0] # key for transition dictionary
         
@@ -46,6 +60,7 @@ def tagCount_secondOrder(corpus):
             transition_secondOrder_p[transtioninfo]=transition_secondOrder_p[transtioninfo]+1 
         else:
             transition_secondOrder_p[transtioninfo]=1 
+    return transition_secondOrder_p
 
 
 def transitionProbability_secondOrder(corpus): 
@@ -55,6 +70,7 @@ def transitionProbability_secondOrder(corpus):
     Input:-corpus data read from corpus files
     Output:- transitionProbabilities for secondOrder
     """
+    print("transitionProbability_secondOrder")
     for previous_previous,previous, current in zip(corpus, corpus[1:],corpus[2:]): # calculating tag count
         transtioninfo=previous_previous[0]+"->"+previous[0]+"->"+current[0] # key for transition dictionary        
         if transtioninfo in transition_secondOrder:
@@ -66,6 +82,7 @@ def transitionProbability_secondOrder(corpus):
         previousTag=transitionInfo.split("->")[1].strip()
         Tag=previous_previousTag+"->"+previousTag
         transitionProbabilities_secondOrder[transitionInfo]=(transition_secondOrder[transitionInfo])/(transition_secondOrder_p[Tag])  
+    return transitionProbabilities_secondOrder
 
 
 def transitionProbability_firstOrder(corpus):  
@@ -117,6 +134,7 @@ def transitionProbability_zeroOrder(corpus):
     for tag in tags:
         count=tags[tag]
         transitionProbabilities_zeroOrder[tag]=(count)/(totalCount_N)
+    return transitionProbabilities_zeroOrder
 
 def emissionProbability(corpus):
     """
@@ -124,6 +142,7 @@ def emissionProbability(corpus):
     Input:- corpus data read from corpus files
     Output:- emissionProbabilities     
     """
+    print("emissionProbability")
     for i in corpus:  # calculating word->Tag count
         for j in range(0,len(i[1])):
             featureTag=i[1][j]+"->"+i[0]
@@ -136,9 +155,3 @@ def emissionProbability(corpus):
         tag=i.split("->")[1].strip()  
         emissionProbabilities[i]=featureCount[i]/tags[tag]
     return emissionProbabilities
-
-
-
-
-
-
