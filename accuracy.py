@@ -71,7 +71,7 @@ class Accuracy:
     """
     totalcount = 0
     totalmatch = 0
-    expectedArrary = []
+    predictedArray = []
     actualArray = []
     for i in range(len(self.actualLines)):
         #print(self.expectedLines[i])
@@ -79,12 +79,12 @@ class Accuracy:
         #print(self.actualLines[i])
         currPredicted = self.predictedLines[i].split("->")[1].strip()
         totalcount += 1
-        actualArrary.append(currActual)
+        actualArray.append(currActual)
         predictedArray.append(currPredicted)
         if currActual == currPredicted:
             totalmatch += 1
     y_pred = pd.Series(predictedArray, name='Predicted')
-    y_exp = pd.Series(ActualArrary, name='Actual')
+    y_exp = pd.Series(actualArray, name='Actual')
     df_confusion = pd.crosstab(y_exp, y_pred, rownames=['Actual'], colnames=['Predicted'], margins=True)
     print (df_confusion)
     print("accuracy %d/%d: %.2f%%" % (totalmatch, totalcount, 100*(totalmatch/totalcount)))
