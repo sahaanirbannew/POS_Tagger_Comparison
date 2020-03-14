@@ -7,14 +7,15 @@ Description:        Start of HMM model training.
 Version History:
 Version |   Date    |  Change ID |  Changes 
 1.01                                Initial draft version
+1.02                                Updated the calls for zero and second order
 """
 
 import os
 import HMM_Training as train
 import time 
 import pickle
-import  HMM_Viterbi as decode
-import data_representation  as dr
+import HMM_Viterbi as decode
+#import data_representation  as dr
 
 def open_file(corpus_name):
     """Read the corpus file based on the input corpus_name.    
@@ -42,19 +43,35 @@ def main(tagger,corpus_name):
     if corpus_name=="penn" or corpusName=="conll" or corpusName=="genia":        
         if int(tagger)==0:
             print("Start of training for zero order")  
+            corpus=open_file(corpus_name)                    
+            tagCount_out=train.tagCount(corpus) 
+            print(tagCount_out)
+            transitionProbability_out=train.transitionProbability_zeroOrder(corpus)
+            print(transitionProbability_out)
+            emissionProbability_out=train.emissionProbability(corpus)
+            print(emissionProbability_out)
             print("Training completed!!")
         elif int(tagger)==1:
             print("Start of training for first order ")
-            corpus=open_file(corpus_name)
+            corpus=open_file(corpus_name)          
             tagCount_out=train.tagCount(corpus) 
             transitionProbability_out,forwardtagcount_out=train.transitionProbability_firstOrder(corpus) 
-            print(forwardtagcount_out)
+            #print(forwardtagcount_out)
             emissionProbability_out=train.emissionProbability(corpus) 
             print("Training completed!!")         
-            test=decode.ModelDecode("Input_test/rawCorpus.txt",transitionProbability_out,emissionProbability_out,forwardtagcount_out) 
+            test=decode.ModelDecode("Input_test/rawCorpus.txt",transitionProbability_out,emissionProbability_out,forwardtagcount_out) # have to change the input to viterbi
             test_output=test.decode()
         elif int(tagger)==2:
             print("Start of training for second order ")
+            corpus=open_file(corpus_name)
+            tagCount_out=train.tagCount(corpus)
+            print(tagCount_out)
+            tagCount_secondOrder_out=train.tagCount_secondOrder(corpus) 
+            print(tagCount_secondOrder_out)
+            transitionProbability_out=train.transitionProbability_secondOrder(corpus) 
+            print(transitionProbability_out)
+            emissionProbability_out=train.emissionProbability(corpus) 
+            print(emissionProbability_out)
             print("Training completed!!")
         else:
             print("Not a valid input")      
@@ -63,5 +80,5 @@ def main(tagger,corpus_name):
         print("Invalid corpus name")
     #return test_output
 
-output=main(1,"penn")
-print(output)
+main(0,"penn")
+
