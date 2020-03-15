@@ -11,6 +11,7 @@ Version History:
 Version |   Date    |  Change ID |  Changes 
 1.01                                Removed dead code. 
 1.01     07.03.2020                 Added the word at the start of the sequence of DRF. 
+1.02     15.03.2020    #Change_1    Format of the DRF changed. [prev_tag, tag, [word, features_i]]
 
 """
 import re
@@ -267,6 +268,7 @@ Input:          words (array), tags (array), *params
 Output:         List of words, Feature set.
 """
 def get_list_of_words_encrypted_str(words, tags, **params): 
+  #words is an array. It is the set of words in a sentence. This function will be called for every sentence. The starting word will have a previous tag of #"START".  #Change_1
   flc = 0 
   alc = 0
   contains_digit = 0
@@ -280,6 +282,7 @@ def get_list_of_words_encrypted_str(words, tags, **params):
   all_suffix = 0 
   all_words  = 0  
   has_dot = 0
+  prev_tag = 'START' 
   
   main_array = []
   feature_set = set()
@@ -330,10 +333,12 @@ def get_list_of_words_encrypted_str(words, tags, **params):
       list_element = encoded_feature_array
       list_of_words.append(list_element)
     else:          
+      main_array.append(prev_tag)                   #Change_1
       main_array.append(tags[counter])  
       main_array.append(encoded_feature_array) 
       list_of_words.append(main_array)     
       main_array = []  
+      prev_tag = tags[counter]                      #Change_1
     counter = counter + 1
 
   return list_of_words, feature_set
@@ -390,7 +395,7 @@ def data_representation(line, conf_arr):
 """
 Description:    Converts the set to a dictionary and exports them.  
 Input:          set, dataset_name, choice of file. 
-Output:         
+Output:         dictionary file in pickle format.    
 """
 def export_sets(set_t, dataset_name, choice): 
   #convert the sets to a dictionary
@@ -453,15 +458,14 @@ def genertate_drf_files(filepath, config_num):
   g_.log_entry("Tags for "+dataset_name+" exported.",g_.const_info)
   export_sets(feature_set, dataset_name, 'features')
   g_.log_entry("Features for "+dataset_name+" exported.",g_.const_info)
-  g_.log_entry("Data representation program for "+dataset_name+" ended.",g_.const_info)
-  return "Data representation program for "+dataset_name+" ended."
+  g_.log_entry("Data representation program for "+dataset_name+" ended.",g_.const_info) 
 
 """
 Description:    Exports the data representation files. 
 Input:          list of words representations, dataset name.
 Output:     
 """
-def export_drp_file(main_list, dataset_name):
+def export_drp_file(main_list, dataset_name): 
   # Giving the output.
   try:
     file_path = '/content/drf/drf_'+dataset_name+'.pkl'
