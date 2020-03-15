@@ -2,18 +2,18 @@
 """
 
 Developer         :      Venkatesh Murugadas
-Version           :      0.02
-Date              :      02/03/2020
+Version           :      0.03
+Date              :      15/03/2020
 Input             :      None
 Output            :      None
 Description       :      This file defines the functions for parsing the pentree bank, Genia and CoNLL corpus used for Parts of Speech Tagging.
 Documentation Link:      https://docs.google.com/document/d/16GPkM6cVHHhpFTJk_WOIH4i23Ap9GiHmSvzJfmZYHRE/edit?usp=sharing
 
 Version History   :
-- version
-- date
-- changes
-- change identifier
+- 0.02
+- 02/03/2020
+- Added 'START' tag to the sentence.
+- #CHANGED
 
 """
 
@@ -194,6 +194,9 @@ def create_penntreebank_dataset(files):
             tokens_modified = []
             tagged_token = []
 
+            #append START tag to the sentence  #CHANGED
+            tagged_token.append('START')
+
             # Tokenise the sentences into words using NLTK
             tokens = WhitespaceTokenizer().tokenize(sent)
 
@@ -304,6 +307,9 @@ def create_genia_dataset(files):
         for sent in sents:
             new_tagged_token = []
             tagged_token = []
+
+            #append START tag to the sentence
+            new_tagged_token.append('START')
             # the list to store the words and tags after removing the unnecessary tokens
             tokens_modified = []
             # Tokenise the sentences into words using NLTK
@@ -329,6 +335,7 @@ def create_genia_dataset(files):
             # the modified list is checked whether it satifies this pattern of word/tag format and it is append to a list for further processing.
             for token in tokens_modified:
                 if patt.match(token):
+
                     tagged_token.append(token.split())  #Example : [['This/DT'], ['suppressive/JJ'], ['effect/NN'], ['was/VBD']]
 
             '''
@@ -438,6 +445,9 @@ def create_conll_dataset(files):
 
         for sent in sents:
             tagged_token = []
+
+            #append START tag to the sentence
+            tagged_token.append('START')
             # Tokenise the sentences into words by splitting it with '\n'
             tokens = sent.split('\n')
 
