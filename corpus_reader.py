@@ -111,18 +111,18 @@ def initialise_variables():
              dictionary
                 - The main dictionary with the sentence number and the sentence with words and tags.
 
-                  {0 : [['word1','tag1']['word2','tag2']],
-                   1 : [['word3','tag3']['word4','tag4']],
+                  {0 : ['START',['word1','tag1'],['word2','tag2']],
+                   1 : ['START',['word3','tag3'],['word4','tag4']],
                    .
                    .
                    .
-                   N : [['wordN-1','tagN-1']['wordN','tagN']] }
+                   N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
 
              i
                 - the variable used to assign the sentence number
              d
                 - the temporary dictionary used to update the main dictionary
-                  { i  : [['word1','tag1']['word2','tag2']]}
+                  { i  : ['START',['word1','tag1'],['word2','tag2']]}
     '''
 
     file_list = []
@@ -167,12 +167,12 @@ def create_penntreebank_dataset(files):
      return : dictionary
               The main dictionary with the sentence number and the sentence with words and tags.
 
-              {0 : [['word1','tag1']['word2','tag2']],
-               1 : [['word3','tag3']['word4','tag4']],
+              {0 : ['START',['word1','tag1'],['word2','tag2']],
+               1 : ['START',['word3','tag3'],['word4','tag4']],
                .
                .
                .
-               N : [['wordN-1','tagN-1']['wordN','tagN']] }
+               N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
 
      """
     #initalise the variables for creating the dataset
@@ -285,12 +285,12 @@ def create_genia_dataset(files):
       return : dictionary
                The main dictionary with the sentence number and the sentence with words and tags.
 
-               {0 : [['word1','tag1']['word2','tag2']],
-                1 : [['word3','tag3']['word4','tag4']],
+               {0 : ['START',['word1','tag1'],['word2','tag2']],
+                1 : ['START',['word3','tag3'],['word4','tag4']],
                 .
                 .
                 .
-                N : [['wordN-1','tagN-1']['wordN','tagN']] }
+                N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
 
     """
     #initalise the variables for creating the dataset
@@ -423,12 +423,12 @@ def create_conll_dataset(files):
       return : dictionary
                The main dictionary with the sentence number and the sentence with words and tags.
 
-               {0 : [['word1','tag1']['word2','tag2']],
-                1 : [['word3','tag3']['word4','tag4']],
+               {0 : ['START',['word1','tag1'],['word2','tag2']],
+                1 : ['START',['word3','tag3'],['word4','tag4']],
                 .
                 .
                 .
-                N : [['wordN-1','tagN-1']['wordN','tagN']] }
+                N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
 
     """
     #initalise the variables for creating the dataset
@@ -527,12 +527,12 @@ def modify_tags(dictionary):
     param : dictionary
             The main dictionary with the sentence number and the sentence with words and tags.
 
-             {0 : [['word1','tag1']['word2','tag2']],
-              1 : [['word3','tag3']['word4','tag4']],
+             {0 : ['START',['word1','tag1'],['word2','tag2']],
+              1 : ['START',['word3','tag3'],['word4','tag4']],
               .
               .
               .
-              N : [['wordN-1','tagN-1']['wordN','tagN']] }
+              N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
 
     return : dictionary
              The modified main dictionary with the same format as above.
@@ -602,12 +602,12 @@ def create_word_list(dictionary):
     param : dictionary
             The main dictionary with the sentence number and the sentence with words and tags.
 
-             {0 : [['word1','tag1']['word2','tag2']],
-              1 : [['word3','tag3']['word4','tag4']],
+             {0 : ['START',['word1','tag1'],['word2','tag2']],
+              1 : ['START',['word3','tag3'],['word4','tag4']],
               .
               .
               .
-              N : [['wordN-1','tagN-1']['wordN','tagN']] }
+              N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
 
     return : word_list
              The list of all words present in the main dictionary
@@ -633,12 +633,12 @@ def create_tag_list(dictionary):
     param : dictionary
             The main dictionary with the sentence number and the sentence with words and tags.
 
-             {0 : [['word1','tag1']['word2','tag2']],
-              1 : [['word3','tag3']['word4','tag4']],
+             {0 : ['START',['word1','tag1'],['word2','tag2']],
+              1 : ['START',['word3','tag3'],['word4','tag4']],
               .
               .
               .
-              N : [['wordN-1','tagN-1']['wordN','tagN']] }
+              N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
 
     return : tag_list
              The list of all tags present in the main dictionary
@@ -664,12 +664,12 @@ def create_sentences_list(dictionary):
     param : dictionary
             The main dictionary with the sentence number and the sentence with words and tags.
 
-             {0 : [['word1','tag1']['word2','tag2']],
-              1 : [['word3','tag3']['word4','tag4']],
+             {0 : ['START',['word1','tag1'],['word2','tag2']],
+              1 : ['START',['word3','tag3'],['word4','tag4']],
               .
               .
               .
-              N : [['wordN-1','tagN-1']['wordN','tagN']] }
+              N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
 
     return : setence_list
              The list of all sentences present in the main dictionary
@@ -698,12 +698,12 @@ def write_pickle(file_name,dictionary):
             dictionary
             The main dictionary with the sentence number and the sentence with words and tags.
 
-             {0 : [['word1','tag1']['word2','tag2']],
-              1 : [['word3','tag3']['word4','tag4']],
+             {0 : ['START',['word1','tag1'],['word2','tag2']],
+              1 : ['START',['word3','tag3'],['word4','tag4']],
               .
               .
               .
-              N : [['wordN-1','tagN-1']['wordN','tagN']] }
+              N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
 
     The output of this function is pickle file
 
