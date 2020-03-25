@@ -3,7 +3,7 @@
 
 Developer         :      Venkatesh Murugadas
 Version           :      0.03
-Date              :      15/03/2020
+Date              :      25/03/2020
 Input             :      None
 Output            :      None
 Description       :      This file defines the functions for parsing the pentree bank, Genia and CoNLL corpus used for Parts of Speech Tagging.
@@ -12,8 +12,9 @@ Documentation Link:      https://docs.google.com/document/d/16GPkM6cVHHhpFTJk_WO
 Version History   :
 - 0.02
 - 02/03/2020
-- Added 'START' tag to the sentence.
-- #CHANGED
+- Change : 1. The ambiguous tags are converted into single tags
+           2. The Pan/E2A token is ignored since it is wrongly tokenised
+- Change ID : #Changed1
 
 """
 
@@ -111,18 +112,18 @@ def initialise_variables():
              dictionary
                 - The main dictionary with the sentence number and the sentence with words and tags.
 
-                  {0 : ['START',['word1','tag1'],['word2','tag2']],
-                   1 : ['START',['word3','tag3'],['word4','tag4']],
+                  {0 : [['word1','tag1'],['word2','tag2']],
+                   1 : [['word3','tag3'],['word4','tag4']],
                    .
                    .
                    .
-                   N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
+                   N : [['wordN-1','tagN-1'],['wordN','tagN']] }
 
              i
                 - the variable used to assign the sentence number
              d
                 - the temporary dictionary used to update the main dictionary
-                  { i  : ['START',['word1','tag1'],['word2','tag2']]}
+                  { i  : [['word1','tag1'],['word2','tag2']]}
     '''
 
     file_list = []
@@ -193,9 +194,6 @@ def create_penntreebank_dataset(files):
             # the list to store the words and tags after removing the unnecessary tokens
             tokens_modified = []
             tagged_token = []
-
-            #append START tag to the sentence  #CHANGED
-            tagged_token.append('START')
 
             # Tokenise the sentences into words using NLTK
             tokens = WhitespaceTokenizer().tokenize(sent)
@@ -285,12 +283,12 @@ def create_genia_dataset(files):
       return : dictionary
                The main dictionary with the sentence number and the sentence with words and tags.
 
-               {0 : ['START',['word1','tag1'],['word2','tag2']],
-                1 : ['START',['word3','tag3'],['word4','tag4']],
+               {0 : [['word1','tag1'],['word2','tag2']],
+                1 : [['word3','tag3'],['word4','tag4']],
                 .
                 .
                 .
-                N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
+                N : [['wordN-1','tagN-1'],['wordN','tagN']] }
 
     """
     #initalise the variables for creating the dataset
@@ -308,8 +306,6 @@ def create_genia_dataset(files):
             new_tagged_token = []
             tagged_token = []
 
-            #append START tag to the sentence
-            new_tagged_token.append('START')
             # the list to store the words and tags after removing the unnecessary tokens
             tokens_modified = []
             # Tokenise the sentences into words using NLTK
@@ -350,12 +346,15 @@ def create_genia_dataset(files):
                 Example :  NF-kappaB/Rel/NN , Platelet/endothelium/NN etc.
 
             So from the above example NF-kappaB/Rel is split separatedly and joined with a space in between
-            such as 'NF-kappaB Rel'. 'NN' is split separatedly as the tag.
+            such as 'NF-kappaB Rel'. 'NN' is split separately as the tag.
 
             '''
             # print(len(tagged_token))
             for token in tagged_token:
                 for t in token:
+                    # This instance is not correctly tokenized , so we can ignore this. There are other instances of 'Pan/E2A/NN'. So this can be ignored.
+                    if t == 'Pan/E2A':   #Changed1
+                         continue
                     # temporary list to append the word and tag
                     list_1 = []
                     word_lis = []
@@ -423,12 +422,12 @@ def create_conll_dataset(files):
       return : dictionary
                The main dictionary with the sentence number and the sentence with words and tags.
 
-               {0 : ['START',['word1','tag1'],['word2','tag2']],
-                1 : ['START',['word3','tag3'],['word4','tag4']],
+               {0 : [['word1','tag1'],['word2','tag2']],
+                1 : [['word3','tag3'],['word4','tag4']],
                 .
                 .
                 .
-                N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
+                N : [['wordN-1','tagN-1'],['wordN','tagN']] }
 
     """
     #initalise the variables for creating the dataset
@@ -446,8 +445,6 @@ def create_conll_dataset(files):
         for sent in sents:
             tagged_token = []
 
-            #append START tag to the sentence
-            tagged_token.append('START')
             # Tokenise the sentences into words by splitting it with '\n'
             tokens = sent.split('\n')
 
@@ -518,7 +515,7 @@ X: other
 
 """
 
-def modify_tags(dictionary):
+def modify_tags(dictionary):     #Changed1
     '''
     This function is used to normalise the Penn Treebank, Genia and CoNLL tagset into Universal tagset
 
@@ -527,12 +524,12 @@ def modify_tags(dictionary):
     param : dictionary
             The main dictionary with the sentence number and the sentence with words and tags.
 
-             {0 : ['START',['word1','tag1'],['word2','tag2']],
-              1 : ['START',['word3','tag3'],['word4','tag4']],
+             {0 : [['word1','tag1'],['word2','tag2']],
+              1 : [['word3','tag3'],['word4','tag4']],
               .
               .
               .
-              N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
+              N : [['wordN-1','tagN-1'],['wordN','tagN']] }
 
     return : dictionary
              The modified main dictionary with the same format as above.
@@ -547,7 +544,7 @@ def modify_tags(dictionary):
             elif tags[1] == ',' or tags[1] == '.' or tags[1] == ':' or tags[1] == '(' or tags[1] == ')' or tags[1] == '``' or tags[1] == "''" or tags[1] == "-":
                 # Punctuation
                 tags[1] = 'PUNCT'
-            elif tags[1] == 'AFX' or tags[1] == 'JJ' or tags[1] == 'JJR' or tags[1] == 'JJS' :
+            elif tags[1] == 'AFX' or tags[1] == 'JJ' or tags[1] == 'JJR' or tags[1] == 'JJS' or tags[1] == 'JJ|NN' or tags[1] == 'JJ|NNS' or tags[1] == 'JJ|VBN' or tags[1] == 'JJ|RB' or tags[1] == 'JJ|VBG' :
                 # Adjective
                 tags[1] = 'ADJ'
             elif tags[1] == 'CC':
@@ -556,22 +553,22 @@ def modify_tags(dictionary):
             elif tags[1] == 'CD':
                 #Numbers
                 tags[1] = 'NUM'
-            elif tags[1] == 'DT' or tags[1] == 'PDT' or tags[1] == 'PRP$' or tags[1] == 'WDT' or tags[1] == 'WP$':
+            elif tags[1] == 'DT' or tags[1] == 'PDT' or tags[1] == 'PRP$' or tags[1] == 'WDT' or tags[1] == 'WP$' or tags[1] == 'CT' or tags[1] == 'XT':
                 #Articles or Determinants
                 tags[1] = 'DET'
-            elif tags[1] == 'EX' or tags[1] == 'PRP' or tags[1] == 'WP':
+            elif tags[1] == 'EX' or tags[1] == 'PRP' or tags[1] == 'WP' or tags[1] == 'PP':
                 # Pronoun
                 tags[1] = 'PRON'
             elif tags[1] == 'FW' or tags[1] == 'LS' or tags[1] == 'NIL':
                 #Foreign term
                 tags[1] = 'X'
-            elif tags[1] == 'IN' or tags[1] == 'RP':
+            elif tags[1] == 'IN' or tags[1] == 'RP' or tags[1] == 'IN|PRP$' or tags[1] == 'IN|CC':
                 # Adposition
                 tags[1] = 'ADP'
-            elif tags[1] == 'MD' or tags[1] == 'VB' or tags[1] == 'VBD' or tags[1] == 'VBG' or tags[1] == 'VBN' or tags[1] == 'VBP' or tags[1] == 'VBZ' :
+            elif tags[1] == 'MD' or tags[1] == 'VB' or tags[1] == 'VBD' or tags[1] == 'VBG' or tags[1] == 'VBN' or tags[1] == 'VBP' or tags[1] == 'VBZ' or tags[1] == 'VBG|NN' or tags[1] == 'VBP|VBG' or tags[1] == 'VBG|JJ' or tags[1] == 'VBD|VBN' or tags[1] == 'VBN|JJ' or tags[1] == 'VBP|VBZ' :
                 # Verb
                 tags[1] = 'VERB'
-            elif tags[1] == 'NN' or tags[1] == 'NNS' :
+            elif tags[1] == 'NN' or tags[1] == 'NNS' or tags[1] == 'NN|NNS' or tags[1] == 'NN|CD' or tags[1] == 'NNS|FW' or tags[1] == 'NN|DT' or tags[1] == 'N':
                  #Noun
                 tags[1] = 'NOUN'
             elif tags[1] == 'NNP' or tags[1] == 'NNPS':
@@ -602,12 +599,12 @@ def create_word_list(dictionary):
     param : dictionary
             The main dictionary with the sentence number and the sentence with words and tags.
 
-             {0 : ['START',['word1','tag1'],['word2','tag2']],
-              1 : ['START',['word3','tag3'],['word4','tag4']],
+             {0 : [['word1','tag1'],['word2','tag2']],
+              1 : [['word3','tag3'],['word4','tag4']],
               .
               .
               .
-              N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
+              N : [['wordN-1','tagN-1'],['wordN','tagN']] }
 
     return : word_list
              The list of all words present in the main dictionary
@@ -633,12 +630,12 @@ def create_tag_list(dictionary):
     param : dictionary
             The main dictionary with the sentence number and the sentence with words and tags.
 
-             {0 : ['START',['word1','tag1'],['word2','tag2']],
-              1 : ['START',['word3','tag3'],['word4','tag4']],
+             {0 : [['word1','tag1'],['word2','tag2']],
+              1 : [['word3','tag3'],['word4','tag4']],
               .
               .
               .
-              N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
+              N : [['wordN-1','tagN-1'],['wordN','tagN']] }
 
     return : tag_list
              The list of all tags present in the main dictionary
@@ -664,12 +661,12 @@ def create_sentences_list(dictionary):
     param : dictionary
             The main dictionary with the sentence number and the sentence with words and tags.
 
-             {0 : ['START',['word1','tag1'],['word2','tag2']],
-              1 : ['START',['word3','tag3'],['word4','tag4']],
+             {0 : [['word1','tag1'],['word2','tag2']],
+              1 : [['word3','tag3'],['word4','tag4']],
               .
               .
               .
-              N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
+              N : [['wordN-1','tagN-1'],['wordN','tagN']] }
 
     return : setence_list
              The list of all sentences present in the main dictionary
@@ -698,12 +695,12 @@ def write_pickle(file_name,dictionary):
             dictionary
             The main dictionary with the sentence number and the sentence with words and tags.
 
-             {0 : ['START',['word1','tag1'],['word2','tag2']],
-              1 : ['START',['word3','tag3'],['word4','tag4']],
+             {0 : [['word1','tag1'],['word2','tag2']],
+              1 : [['word3','tag3'],['word4','tag4']],
               .
               .
               .
-              N : ['START',['wordN-1','tagN-1'],['wordN','tagN']] }
+              N : [['wordN-1','tagN-1'],['wordN','tagN']] }
 
     The output of this function is pickle file
 

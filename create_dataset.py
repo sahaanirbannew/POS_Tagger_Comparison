@@ -13,10 +13,14 @@ Version History   :
 - changes
 - change identifier
 
+#TODO
+
+    1. Incorporate Log function from global.py
+
 Main Program
 
 Pre-requistie for running the program
-    1. The file path for the Penn Treebank, Genia and CoNLL corpus for training. 
+    1. The file path for the Penn Treebank, Genia and CoNLL corpus for training.
 
 '''
 from corpus_reader import *
@@ -80,8 +84,8 @@ while option.lower() != 'exit':
         #intermediate storage point of reading the corpus. The corpus is written to a pickle file and then from here it is continued for further process
         ptb_file_name = 'dataset/penntreebank.pkl'
         # write the dictionary to pickle file
-        # write_pickle(ptb_file_name,ptb_sentence_dict)
-         # the dictionary file read from the pickle file
+        write_pickle(ptb_file_name,ptb_sentence_dict)
+        # the dictionary file read from the pickle file
         ptb_data_dictionary = read_pickle(ptb_file_name)
         ptb_words_list , ptb_words_counter = create_word_list(ptb_data_dictionary)
         ptb_tags_list, ptb_tags_counter = create_tag_list(ptb_data_dictionary)
@@ -114,7 +118,7 @@ while option.lower() != 'exit':
         # write_txt(data_file_path+'dataset_penntreebank.txt', ptb_modified_sentences_list)
         # write_csv(data_file_path+'dataset_penntreebank',ptb_data_dictionary)
         # write_tsv(data_file_path+'dataset_penntreebank',ptb_data_dictionary)
-        write_pickle(data_file_path+'dataset_penntreebank.pkl',ptb_data_dictionary)
+        write_pickle(data_file_path+'dataset_penn.pkl',ptb_data_dictionary)
         print("Dataset is created and the output files are present in the dataset folder")
 
     elif option == '2':
@@ -160,7 +164,7 @@ while option.lower() != 'exit':
 
         genia_file_name = 'genia.pkl'
         # write the dictionary to pickle file
-        # write_pickle(genia_file_name,genia_sentence_dict)
+        write_pickle(genia_file_name,genia_sentence_dict)
         # the dictionary file read from the pickle file
         genia_data_dictionary = read_pickle(genia_file_name)
         genia_words_list , genia_words_counter = create_word_list(genia_data_dictionary)
@@ -242,7 +246,7 @@ while option.lower() != 'exit':
 
         conll_file_name = 'conll.pkl'
         # write the dictionary to pickle file
-        # write_pickle(conll_file_name,conll_sentence_dict)
+        write_pickle(conll_file_name,conll_sentence_dict)
         # the dictionary file read from the pickle file
         conll_data_dictionary = read_pickle(conll_file_name)
         conll_words_list , conll_words_counter = create_word_list(conll_data_dictionary)
@@ -264,6 +268,7 @@ while option.lower() != 'exit':
         print("Modified Dictionary Created")
         print("Number of Modified Tags : {}".format(len(conll_modified_tags_counter)))
         print("Modified Tag list")
+        pprint.pprint(conll_modified_tags_counter)
 
         print("Final Format of the corpus with Modified tags")
         #Insert the line_number to view the line in the dataset
