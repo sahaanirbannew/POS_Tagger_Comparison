@@ -2,8 +2,8 @@
 """
 
 Developer         :      Venkatesh Murugadas
-Version           :      0.03
-Date              :      25/03/2020
+Version           :      0.04
+Date              :      05/04/2020
 Input             :      None
 Output            :      None
 Description       :      This file defines the functions for parsing the pentree bank, Genia and CoNLL corpus used for Parts of Speech Tagging.
@@ -14,7 +14,12 @@ Version History   :
 - 02/03/2020
 - Change : 1. The ambiguous tags are converted into single tags
            2. The Pan/E2A token is ignored since it is wrongly tokenised
-- Change ID : #Changed1
+- Change ID : #AmbiguousTagCon
+
+- 0.03
+- 25/03/2020
+- Change : 1. Adding the function to create test and train split of the corpus.
+- Change ID : #TestTrainSplit
 
 """
 
@@ -43,6 +48,7 @@ import csv                                                      # read and write
 from collections import Counter                                 # used as a counter
 import pickle                                                   # serialising the data
 nltk.download('punkt')                                          # for tokenisation
+import itertools                                                # for slicing the dictionary
 
 
 
@@ -353,7 +359,7 @@ def create_genia_dataset(files):
             for token in tagged_token:
                 for t in token:
                     # This instance is not correctly tokenized , so we can ignore this. There are other instances of 'Pan/E2A/NN'. So this can be ignored.
-                    if t == 'Pan/E2A':   #Changed1
+                    if t == 'Pan/E2A':   #AmbiguousTagCon
                          continue
                     # temporary list to append the word and tag
                     list_1 = []
@@ -515,7 +521,7 @@ X: other
 
 """
 
-def modify_tags(dictionary):     #Changed1
+def modify_tags(dictionary):     #AmbiguousTagCon
     '''
     This function is used to normalise the Penn Treebank, Genia and CoNLL tagset into Universal tagset
 
@@ -812,3 +818,38 @@ def read_corpus():
     option = input("Please choose your option : ")
 
     return option
+
+
+def test_train_split(modified_dictionary):  #TestTrainSplit
+    '''
+    This function is used to create the test train split of the modified corpus which stored in the format of a dictionary with
+    sentence index as key and the tagged sentence as the value.
+
+    param : modified_dictionary
+            The dictionary that contains the sentence number as key and the tagged sentence as values. The tags are normalised in this dictionary.
+
+    return : train_dictionary
+             test_dictionary
+
+             The modified_dictionary is split into two dictionary.
+
+    '''
+
+    total_sentences = len(modified_dictionary)
+
+    train_percentage = int(input("Enter the Percentage of train data : "))
+
+    train_data = int((train_percentage / 100) * total_sentences)
+    train_dictionary = dict(itertools.islice(modified_dictionary.items(), 0 , train_data+1))
+
+    test_data = int(((train_percentage-100) / 100) * total_sentences)
+    test_dictionary = dict(itertools.islice(modified_dictionary.items(), train_data+1 , total_sentences))
+
+    print("The number of train data")
+    print(len(train_dictionary))
+
+    print("The number of test data")
+    print(len(test_dictionary))
+
+
+    return train_dictionary , test_dictionary

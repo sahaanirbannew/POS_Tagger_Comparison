@@ -1,17 +1,17 @@
 '''
 Developer         :      Venkatesh Murugadas
-Version           :      0.02
-Date              :      02/03/2020
+Version           :      0.03
+Date              :      05/04/2020
 Input             :      Corpus file path of Penn Treebank, Genia and CoNLL
 Output            :      Dataset files of Penn Treebank, Genia and CoNLL in pickle format
 Description       :      This file calls the functions from the corpus_reader.py for parsing the pentree bank, Genia and CoNLL corpus used for Parts of Speech Tagging.
 Documentation Link:      https://docs.google.com/document/d/16GPkM6cVHHhpFTJk_WOIH4i23Ap9GiHmSvzJfmZYHRE/edit?usp=sharing
 
 Version History   :
-- version
-- date
-- changes
-- change identifier
+- 0.02
+- 02/03/2020
+- Adding the function for test train split of the dataset
+- Change ID : #TestTrainSplit
 
 #TODO
 
@@ -101,6 +101,7 @@ while option.lower() != 'exit':
         ptb_modified_words_list , ptb_modified_words_counter = create_word_list(ptb_modified_dictionary)
         ptb_modified_tags_list , ptb_modified_tags_counter = create_tag_list(ptb_modified_dictionary)
         ptb_modified_sentences_list = create_sentences_list(ptb_data_dictionary)
+        penn_train_dictionary , penn_test_dictionary = test_train_split(ptb_modified_dictionary)
 
         print("********************************************************")
         print("Modified Dictionary Created")
@@ -110,7 +111,8 @@ while option.lower() != 'exit':
 
         print("Final Format of the corpus with Modified tags")
          # Insert the line_number to view the line in the dataset
-        print(ptb_modified_dictionary[ptb_line_number])
+        print(penn_train_dictionary[ptb_line_number])
+        # print(ptb_modified_dictionary[ptb_line_number])
         print("********************************************************")
 
         # Write output files
@@ -118,7 +120,8 @@ while option.lower() != 'exit':
         # write_txt(data_file_path+'dataset_penntreebank.txt', ptb_modified_sentences_list)
         # write_csv(data_file_path+'dataset_penntreebank',ptb_data_dictionary)
         # write_tsv(data_file_path+'dataset_penntreebank',ptb_data_dictionary)
-        write_pickle(data_file_path+'dataset_penn.pkl',ptb_data_dictionary)
+        write_pickle(data_file_path+'dataset_penn_train.pkl',penn_train_dictionary)
+        write_pickle(data_file_path+'dataset_penn_test.pkl',penn_test_dictionary)
         print("Dataset is created and the output files are present in the dataset folder")
 
     elif option == '2':
@@ -181,6 +184,7 @@ while option.lower() != 'exit':
         genia_modified_words_list , genia_modified_words_counter = create_word_list(genia_modified_dictionary)
         genia_modified_tags_list , genia_modified_tags_counter = create_tag_list(genia_modified_dictionary)
         genia_modified_sentences_list = create_sentences_list(genia_data_dictionary)
+        genia_train_dictionary , genia_test_dictionary = test_train_split(genia_modified_dictionary)
 
         print("********************************************************")
         print("Modified Dictionary Created")
@@ -190,7 +194,7 @@ while option.lower() != 'exit':
 
         print("Final Format of the corpus with Modified tags")
         # Insert the line_number to view the line in the dataset
-        print(genia_modified_dictionary[genia_line_number])
+        print(genia_train_dictionary[genia_line_number])
         print("********************************************************")
 
         #Write output files
@@ -199,7 +203,8 @@ while option.lower() != 'exit':
         # write_txt(data_file_path+'dataset_genia.txt', genia_modified_sentences_list)
         # write_csv(data_file_path+'dataset_genia',genia_data_dictionary)
         # write_tsv(data_file_path+'dataset_genia',genia_data_dictionary)
-        write_pickle(data_file_path+'dataset_genia.pkl',genia_data_dictionary)
+        write_pickle(data_file_path+'dataset_genia_train.pkl',genia_train_dictionary)
+        write_pickle(data_file_path+'dataset_genia_test.pkl',genia_test_dictionary)
         print("Dataset is created and the output files are present in the dataset folder")
 
     elif option == '3':
@@ -263,6 +268,7 @@ while option.lower() != 'exit':
         conll_modified_words_list , conll_modified_words_counter = create_word_list(conll_modified_dictionary)
         conll_modified_tags_list , conll_modified_tags_counter = create_tag_list(conll_modified_dictionary)
         conll_modified_sentences_list = create_sentences_list(conll_data_dictionary)
+        conll_train_dictionary , conll_test_dictionary = test_train_split(conll_modified_dictionary)
 
         print("********************************************************")
         print("Modified Dictionary Created")
@@ -272,7 +278,7 @@ while option.lower() != 'exit':
 
         print("Final Format of the corpus with Modified tags")
         #Insert the line_number to view the line in the dataset
-        print(conll_modified_dictionary[conll_line_number])
+        print(conll_train_dictionary[conll_line_number])
         print("********************************************************")
 
         # Write Output files
@@ -281,7 +287,8 @@ while option.lower() != 'exit':
         # write_txt(data_file_path+'dataset_conll.txt', conll_modified_sentences_list)
         # write_csv(data_file_path+'dataset_conll',conll_data_dictionary)
         # write_tsv(data_file_path+'dataset_conll',conll_data_dictionary)
-        write_pickle(data_file_path+'dataset_conll.pkl', conll_data_dictionary)
+        write_pickle(data_file_path+'dataset_conll_train.pkl',conll_train_dictionary)
+        write_pickle(data_file_path+'dataset_conll_test.pkl',conll_test_dictionary)
         print("Dataset is created and the output files are present in the dataset folder")
 
     elif option.lower() == 'exit':
