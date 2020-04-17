@@ -2,17 +2,19 @@
 """
 Developer:          Divya sasidharan 
 Version:            v1.0 (released)
-Date:               14.03.2020
+Date:               18.04.2020
              
 Description:        Start of Accuracy Check.   
 Version History:
 Version |   Date    |  Change ID |  Changes 
 1.01                                Initial draft version
+1.02                                updated pickle file reader
 """
 import ast
 import math
 import string
 import pandas as pd
+import pickle
 
 class Accuracy:
   """
@@ -37,17 +39,14 @@ class Accuracy:
     Input :- rawCorpus_test and rawCorpus_out for comparison 
     Output :- True or False 
    """
-        with open(self.actualFilePath, 'r') as f:
-            print("------------Actual line------------------")
-            for line in f:
-                line=ast.literal_eval(line)                
-                #print(line)
-                for i in line:
-                    value=i[1][0]+"->"+i[0]
-                    self.actualLines.append(value)
-            print(self.actualLines)
-      
+        f=pickle.load(open(self.actualFilePath,"rb"))
+        print("------------Actual line------------------")
+        for line in f: 
+            value=line[2][0]+"->"+line[1]
+            self.actualLines.append(value)
+        print(self.actualLines)
 
+      
         with open(self.predictedFilePath, 'r') as f:
             print("------------ predicted line------------------")
             for line in f:
@@ -89,6 +88,6 @@ class Accuracy:
     print (df_confusion)
     print("accuracy %d/%d: %.2f%%" % (totalmatch, totalcount, 100*(totalmatch/totalcount)))
 
-rawCorpus_test="Input_test/rawCorpus_test.txt"
-rawCorpus_out="output_test/rawCorpus_out.txt"
+rawCorpus_test="drf/conf 1/drf_penn_test.pkl"
+rawCorpus_out="output_test/penn_conf 1_output.txt" 
 accuracy = Accuracy(rawCorpus_test, rawCorpus_out)
