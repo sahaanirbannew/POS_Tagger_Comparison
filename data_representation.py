@@ -12,6 +12,7 @@ Version |   Date    |  Change ID |  Changes
 1.01                                Removed dead code. 
 1.01     07.03.2020                 Added the word at the start of the sequence of DRF. 
 1.02     15.03.2020    #Change_1    Format of the DRF changed. [prev_tag, tag, [word, features_i]]
+1.03     19.04.2020                 It accepts *_test.pkl and *_train.pkl files.
 
 """
 import re
@@ -397,13 +398,15 @@ Description:    Converts the set to a dictionary and exports them.
 Input:          set, dataset_name, choice of file. 
 Output:         dictionary file in pickle format.    
 """
-def export_sets(set_t, dataset_name, choice): 
+def export_sets(set_t, dataset_name, choice, indicator): 
   #convert the sets to a dictionary
   dict_ = set_to_dict(set_t)
 
   #export them
   try: 
-    filename = "/content/"+choice+"/"+choice+"_"+dataset_name+".pkl"
+    if indicator == 0: filename = "/content/"+choice+"/"+choice+"_"+dataset_name+"_train.pkl"
+    if indicator == 1: filename = "/content/"+choice+"/"+choice+"_"+dataset_name+"_test.pkl"
+    
     f = open(filename, "wb")
     pickle.dump(dict_, f)
   except: 
@@ -417,7 +420,7 @@ Description:    Main function, reads file, generates Data Representation Files, 
 Input:          File path.  
 Output:         
 """
-def genertate_drf_files(filepath, config_num): 
+def genertate_drf_files(filepath, config_num, indicator): 
   export_drf = []
   main_list = [] 
   tag_set = set()
@@ -435,9 +438,9 @@ def genertate_drf_files(filepath, config_num):
     return g_.const_error + ' dataset does not exist.'
 
   index = 0
-  conf_arr = g_.config_params[config_num]
-  while index < len(data): 
-    line = data[index] #already in the form of an array.
+  conf_arr = g_.config_params[config_num] 
+  while index < len(data):  
+    line = data[index] #already in the form of an array. 
     if len(data[index])>0:
       try:
         main_list, set_new_tags, set_new_features = data_representation(line, conf_arr)
@@ -449,14 +452,14 @@ def genertate_drf_files(filepath, config_num):
       tag_set = tag_set.union(set_new_tags) 
       feature_set = feature_set.union(set_new_features)
     index = index + 1 
-  
-  export_drp_file(export_drf, dataset_name)
+    
+  export_drp_file(export_drf, dataset_name, indicator)
   g_.log_entry("DRP file exported successfully.", g_.const_info)
 
   tag_set.add('START')
-  export_sets(tag_set, dataset_name, 'tags')
+  export_sets(tag_set, dataset_name, 'tags', indicator)
   g_.log_entry("Tags for "+dataset_name+" exported.",g_.const_info)
-  export_sets(feature_set, dataset_name, 'features')
+  export_sets(feature_set, dataset_name, 'features', indicator)
   g_.log_entry("Features for "+dataset_name+" exported.",g_.const_info)
   g_.log_entry("Data representation program for "+dataset_name+" ended.",g_.const_info) 
 
@@ -465,10 +468,12 @@ Description:    Exports the data representation files.
 Input:          list of words representations, dataset name.
 Output:     
 """
-def export_drp_file(main_list, dataset_name): 
+def export_drp_file(main_list, dataset_name, indicator): 
   # Giving the output.
   try:
-    file_path = '/content/drf/drf_'+dataset_name+'.pkl'
+    if indicator == 0: file_path = '/content/drf/drf_'+dataset_name+'_train.pkl'
+    if indicator == 1: file_path = '/content/drf/drf_'+dataset_name+'_test.pkl'
+    
     file_op = open(file_path, "wb") 
     pickle.dump(main_list, file_op)
     file_op.close()
@@ -485,7 +490,7 @@ Input:          sentence, configuration number
 Output:         feature representation of words, feature set. 
 """
 def data_representation_testing(sentence, config_num): #not finalised yet.
-  proceed = 1 
+  proceed = 1  
   try: 
     conf_arr = g_.config_params[config_num] 
     param_word         = conf_arr[0]
