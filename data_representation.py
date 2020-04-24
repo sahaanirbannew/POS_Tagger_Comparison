@@ -1,18 +1,20 @@
 """
 Developer:          Anirban Saha. 
-Version:            v1.0 (released)
-Date:               03.02.2020
+Version:            v2.0 (released)
+Date:               24.04.2020
 Input:              Preprocessed files from Corpus Reader in Pickle format. 
-Output:             Data Representation Files.
+Output:             Data Representation Files, Tags list, Features list with config num, test & train split, dataset names.
 Description:        The file contains the feature representation of the words in a sequential format. 
 Documentation Link: https://docs.google.com/document/d/1GoNc0w8WSi1TzxbzgRMrdPnGk7rg6wHxLoM-dikuuv0/edit?usp=sharing  
 
 Version History:
 Version |   Date    |  Change ID |  Changes 
-1.01                                Removed dead code. 
+1.00     03.02.2020                 Removed dead code. 
 1.01     07.03.2020                 Added the word at the start of the sequence of DRF. 
 1.02     15.03.2020    #Change_1    Format of the DRF changed. [prev_tag, tag, [word, features_i]]
 1.03     19.04.2020                 It accepts *_test.pkl and *_train.pkl files.
+1.04     24.04.2020                 Output file names contain configuration number. 
+2.0      24.04.2020                 Checks whether the file already exists. If exists, it terminates.
 
 """
 import re
@@ -398,91 +400,113 @@ Description:    Converts the set to a dictionary and exports them.
 Input:          set, dataset_name, choice of file. 
 Output:         dictionary file in pickle format.    
 """
-def export_sets(set_t, dataset_name, choice, indicator): 
+def export_sets(set_t, dataset_name, choice, indicator, config_num):  #indicator is to check whether it is test or train set. 
   #convert the sets to a dictionary
   dict_ = set_to_dict(set_t)
 
   #export them
   try: 
-    if indicator == 0: filename = "/content/"+choice+"/"+choice+"_"+dataset_name+"_train.pkl"
-    if indicator == 1: filename = "/content/"+choice+"/"+choice+"_"+dataset_name+"_test.pkl"
+    if indicator == 0: filename = "./"+choice+"/"+choice+"_"+str(config_num)+"_"+dataset_name+".pkl"
+    if indicator == 1: filename = "./"+choice+"/"+choice+"_"+str(config_num)+"_"+dataset_name+".pkl"
     
     f = open(filename, "wb")
     pickle.dump(dict_, f)
-  except: 
-    filename = "./"+choice+"/"+choice+"_"+dataset_name+".pkl"
-    f = open(filename, "wb")
-    pickle.dump(dict_, f) 
-  f.close()
+    f.close()
+    
+  except Exception as e: 
+    g_.log_entry("Error dumping "+choice+" files.",g_.const_error)
+    g_.log_entry(str(e), g_.const_error)
+  
 
+"""
+
+"""
+def  does_file_exist(dataset_name, config_num):
+  file_path = './drf/drf_'+str(config_num)+"_"+dataset_name+'_train.pkl'
+  try:
+    with open(file_path, 'rb') as file:
+      g_.log_entry("Data Representation Files for this dataset "+dataset_name+" exists for the configuration number "+str(config_num), g_.const_error)
+      return 0
+  except:
+    return 1
+  
+  
 """
 Description:    Main function, reads file, generates Data Representation Files, logs the entry. 
 Input:          File path.  
-Output:         
+Output:         Data Representation Files.
 """
-def genertate_drf_files(filepath, config_num, indicator): 
+def genertate_drf_files(dataset, config_num, indicator): 
   export_drf = []
   main_list = [] 
   tag_set = set()
   feature_set = set() 
   
-  try:
-    with open(filepath, 'rb') as file: 
-      data = pickle.load(file)  
-      num_of_rows = len(data)
-      g_.log_entry("Number of rows:" + str(num_of_rows), g_.const_info) 
-      dataset_name = filepath.split('dataset_')[1].replace(".pkl",'') 
-      g_.log_entry("Data representation program for "+dataset_name+" started.",g_.const_info) 
-  except:
-    g_.log_entry("Dataset does not exist or it does not follow naming convention.",g_.const_error)
-    return g_.const_error + ' dataset does not exist.'
-
-  index = 0
-  conf_arr = g_.config_params[config_num] 
-  while index < len(data):  
-    line = data[index] #already in the form of an array. 
-    if len(data[index])>0:
-      try:
-        main_list, set_new_tags, set_new_features = data_representation(line, conf_arr)
-      except Exception as e:  
-        g_.log_entry(str(e)+ ' error at ' + str(index) + ' line. Value: ' + str(data[index]), g_.const_error)
+  if indicator ==1: dataset_filepath = "./datasets/dataset_"+dataset+"_test.pkl"
+  if indicator ==0: dataset_filepath = "./datasets/dataset_"+dataset+"_train.pkl"
+  
+  is_file_exist = does_file_exist(dataset, config_num)
+  if is_file_exist == 0: 
+    return 0 #failed.
+  
+  if is_file_exist == 1: 
+    try:
+      with open(dataset_filepath, 'rb') as file: 
+        data = pickle.load(file)  
+        num_of_rows = len(data)
+        g_.log_entry("Number of rows:" + str(num_of_rows), g_.const_info)         #Number of rows not required. But it is not harming either.
+        dataset_name = filepath.split('dataset_')[1].replace(".pkl",'') 
+        g_.log_entry("Data representation program for "+dataset_name+" started.",g_.const_info) 
+    except:
+      g_.log_entry("Dataset does not exist or it does not follow naming convention.",g_.const_error)
+      return g_.const_error + ' dataset does not exist.'
     
-    if len(main_list)>0: 
-      for word in main_list: export_drf.append(word) 
-      tag_set = tag_set.union(set_new_tags) 
-      feature_set = feature_set.union(set_new_features)
-    index = index + 1 
+    index = 0
+    conf_arr = g_.config_params[config_num] 
+    while index < len(data):  
+      line = data[index] #already in the form of an array. 
+      if len(data[index])>0:
+        try:
+          main_list, set_new_tags, set_new_features = data_representation(line, conf_arr)
+        except Exception as e:  
+          g_.log_entry(str(e)+ ' error at ' + str(index) + ' line. Value: ' + str(data[index]), g_.const_error)
+      
+      if len(main_list)>0: 
+        for word in main_list: export_drf.append(word) 
+        tag_set = tag_set.union(set_new_tags) 
+        feature_set = feature_set.union(set_new_features)
+      index = index + 1 
+      
+    export_drp_file(export_drf, dataset_name, config_num)  #dataset_name has "_test" or "_train" in it. 
+    g_.log_entry("DRP file exported successfully.", g_.const_info)
     
-  export_drp_file(export_drf, dataset_name, indicator)
-  g_.log_entry("DRP file exported successfully.", g_.const_info)
-
-  tag_set.add('START')
-  export_sets(tag_set, dataset_name, 'tags', indicator)
-  g_.log_entry("Tags for "+dataset_name+" exported.",g_.const_info)
-  export_sets(feature_set, dataset_name, 'features', indicator)
-  g_.log_entry("Features for "+dataset_name+" exported.",g_.const_info)
-  g_.log_entry("Data representation program for "+dataset_name+" ended.",g_.const_info) 
+    tag_set.add('START')
+    export_sets(tag_set, dataset_name, 'tags', indicator, config_num)
+    g_.log_entry("Tags for "+dataset_name+" exported.",g_.const_info)
+    export_sets(feature_set, dataset_name, 'features', indicator, config_num)
+    g_.log_entry("Features for "+dataset_name+" exported.",g_.const_info)
+    g_.log_entry("Data representation program for "+dataset_name+" ended.",g_.const_info) 
+    return 1 #Successfully executed. 
 
 """
 Description:    Exports the data representation files. 
 Input:          list of words representations, dataset name.
 Output:     
 """
-def export_drp_file(main_list, dataset_name, indicator): 
+def export_drp_file(main_list, dataset_name, config_num): 
   # Giving the output.
   try:
-    if indicator == 0: file_path = '/content/drf/drf_'+dataset_name+'_train.pkl'
-    if indicator == 1: file_path = '/content/drf/drf_'+dataset_name+'_test.pkl'
+    #if indicator == 0: file_path = './drf/drf_'+str(config_num)+"_"+dataset_name+'.pkl'
+    #if indicator == 1: file_path = './drf/drf_'+str(config_num)+"_"+dataset_name+'.pkl'
+    file_path = './drf/drf_'+str(config_num)+"_"+dataset_name+'.pkl'
     
     file_op = open(file_path, "wb") 
     pickle.dump(main_list, file_op)
     file_op.close()
 
-  except: 
-    file_path = './drf/drf_'+dataset_name+'.pkl'
-    file_op = open(file_path, "wb") 
-    pickle.dump(main_list, file_op)
-    file_op.close()
+  except Exception as e: 
+    g_.log_entry("Error dumping Data Representation Files.",g_.const_error)
+    g_.log_entry(str(e), g_.const_error)
 
 """
 Description:    Creates representation of words without the POS tags. 
