@@ -1,7 +1,7 @@
 """
 Developer:          Divya sasidharan 
 Version:            v1.0 (released)
-Date:               18.04.2020
+Date:               10.06.2020
              
 Description:        Start of HMM model training and decoding.   
 Version History:
@@ -9,14 +9,17 @@ Version |   Date    |  Change ID |  Changes
 1.01                                Initial draft version
 1.02                                Updated the calls for zero and second order
 1.03                                Updated the calls for zero and second order
+1.04                                Updated the code for input configuration files without words
 """
 
 import os
 import time 
 import pickle
-import HMM_Training as train
+import HMM_Training_v1 as train
 import HMM_Viterbi_zero as decode_0
-import HMM_Viterbi_first as decode_1
+import HMM_Viterbi_first as decode_1 
+#import hmm_viterbi_zero_v1 as decode_0
+#import HMM_Viterbi_first_v2 as decode_1 # for last 3 conf
 import HMM_Viterbi_second as decode_2
 
 
@@ -25,7 +28,7 @@ def open_file(configNo,corpus_name,dataset):
     Input:-corpus name [Hint: penn or genia or conll]
     Output:- corpus file content
     """
-    fileLoc=name="drf/"+configNo+"/"
+    fileLoc="drf/"+configNo+"/"
     filelist=os.listdir(fileLoc) # returns all the pickle files in drf folder    
     for file in filelist:        
         corpus = file.split('_')[1].split('.')[0] 
@@ -39,30 +42,24 @@ def open_file(configNo,corpus_name,dataset):
         
 def main(configNo,tagger,corpus_name):
     """The main function for HMM Model."""
-    print("Start of HMM_Main") 
-    #configNo=input(" enter the configNo type [Hint:conf 0/ conf 1/conf 2/conf 3/conf 4/conf 5/conf 6] :")    
-    #tagger=input(" enter the tagger type [Hint: 0= zero order/ 1=First order/2=Second order] :")
-    #corpus_name=input(" enter the corpus name[Hint: penn or genia or conll]:")
+    print("Start of HMM_Main")    
     tagger=tagger
     corpus_name=corpus_name
     start_time = time.time()
     if corpus_name=="penn" or corpus_name=="conll" or corpus_name=="genia":        
         if int(tagger)==0:
-            print("Start of training for zero order")  
+            print("Start of training ")  
             dataset="train"
             corpus=open_file(configNo,corpus_name,dataset)             
             tagCount_out=train.tagCount(corpus)            
-            transitionProbability_out=train.transitionProbability_zeroOrder(corpus) 
-            #print(transitionProbability_out)
-            emissionProbability_out=train.emissionProbability(corpus) 
-            #print(emissionProbability_out)
+            transitionProbability_out=train.transitionProbability_zeroOrder(corpus)            
+            emissionProbability_out=train.emissionProbability(corpus,configNo)            
             print("Training completed!!")
-            dataset="test"
-            #corpus=open_file(corpus_name,dataset)
+            dataset="test"            
             name="drf/"+configNo+"/"+"drf"+"_"+corpus_name+"_"+dataset+".pkl"
             print(name)
             test=decode_0.ModelDecode(corpus_name,configNo,name,transitionProbability_out,emissionProbability_out,tagCount_out) 
-            test_output=test.decode()
+            test.decode() 
         elif int(tagger)==1:
             print("Start of training for first order ")
             dataset="train"
@@ -71,7 +68,7 @@ def main(configNo,tagger,corpus_name):
             tagCount_out=train.tagCount(corpus)            
             transitionProbability_out,forwardtagcount_out=train.transitionProbability_firstOrder(corpus) 
             #print(transitionProbability_out)
-            emissionProbability_out=train.emissionProbability(corpus) 
+            emissionProbability_out=train.emissionProbability(corpus,configNo) 
             #print(emissionProbability_out)
             print("Training completed!!") 
             dataset="test"
@@ -84,17 +81,16 @@ def main(configNo,tagger,corpus_name):
             corpus=open_file(configNo,corpus_name,dataset)
             tagCount_out=train.tagCount(corpus)                                 
             transitionProbability_out,forwardtagcount_out=train.transitionProbability_secondOrder(corpus)          
-            emissionProbability_out=train.emissionProbability(corpus)            
+            emissionProbability_out=train.emissionProbability(corpus,configNo)            
             print("Training completed!!")
             dataset="test"
             name="drf/"+configNo+"/"+"drf"+"_"+corpus_name+"_"+dataset+".pkl"
             test=decode_2.ModelDecode(corpus_name,configNo,name,transitionProbability_out,emissionProbability_out,forwardtagcount_out)
-            test_output=test.decode()
+            test_output=test.decode()                   
         else:
             print("Not a valid input")      
         print("--- %s seconds is total execution time ---" % (time.time() - start_time))
     else:
         print("Invalid corpus name")
     
-
-main("conf 1",0,"penn")# example to invoke main()
+#main("conf 1",2,"penn")# Example to run the code
