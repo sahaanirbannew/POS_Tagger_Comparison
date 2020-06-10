@@ -15,7 +15,7 @@ Version |   Date    |  Change ID |  Changes
 import os
 import time 
 import pickle
-import HMM_Training_v1 as train
+import HMM_Training as train
 import HMM_Viterbi_zero as decode_0
 import HMM_Viterbi_first as decode_1
 import HMM_Viterbi_second as decode_2
