@@ -17,9 +17,7 @@ import time
 import pickle
 import HMM_Training_v1 as train
 import HMM_Viterbi_zero as decode_0
-import HMM_Viterbi_first as decode_1 
-#import hmm_viterbi_zero_v1 as decode_0
-#import HMM_Viterbi_first_v2 as decode_1 # for last 3 conf
+import HMM_Viterbi_first as decode_1
 import HMM_Viterbi_second as decode_2
 
 
