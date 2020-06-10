@@ -35,7 +35,7 @@ class ModelDecode:
         fname="features/"+self.conf+"/"+"features"+"_"+self.corpus+"_train"+".pkl"
         self.AllWordsDict_Inv=pickle.load(open(fname,"rb"))        
         self.AllWordsDict={value: key for key, value in self.AllWordsDict_Inv.items()} 
-        print(self.AllWordsDict)
+        #print(self.AllWordsDict)
         tname="tags/"+self.conf+"/"+"tags"+"_"+self.corpus+"_train"+".pkl"
         self.tagStateDict_Inv=pickle.load(open(tname,"rb"))        
         self.tagStateDict={value: key for key, value in self.tagStateDict_Inv.items()}        
@@ -47,14 +47,14 @@ class ModelDecode:
         self.noOfTag=len(self.tagStateDict)
         self.rawInput=pickle.load(open(rawcorpus,"rb"))
         #print(self.rawInput)
-        oname="output_test/"+self.corpus+"_"+self.conf+"_output"+".txt"
+        oname="output_test/"+self.corpus+"_"+self.conf+"_zeroOrder_output"+".txt"
         self.outFile = open(oname,'+w')  
     
     def emission_probability_calculation(self,featureList,tag):
         list_of_emissionKey = []
         #list_of_emissionKey.append(featureList[0]+"->"+tag) 
         for f in featureList[1:]:
-            list_of_emissionKey.append(f+"->"+tag) 
+            list_of_emissionKey.append(f+"===>"+tag) 
         #print(list_of_emissionKey)
         return list_of_emissionKey
 
@@ -71,7 +71,7 @@ class ModelDecode:
         calTransition=0        
         #for words in rawSentence:
             #sentence.append(words)
-        sentence = rawSentence #list of words
+        sentence = [x for x in rawSentence if x != []] #list of words
         #print("--------------sentence ---------------")
         #print(sentence)
         #print(len(rawSentence))
@@ -82,8 +82,7 @@ class ModelDecode:
         backtrack = [0 for y in range(length)]
         #print(viterbi)
         #print(backtrack)
-        path=[]
-        
+        path=[]        
 
         for l in range(0,length):#recursion step
             for tag_to in self.tagStateDict.keys():
@@ -94,15 +93,15 @@ class ModelDecode:
                 list_of_emissionKey_o=ModelDecode.emission_probability_calculation(self,sentence[l],self.tagStateDict[tag_to]) 
                 #print(list_of_emissionKey_o)
                 #list_of_emissionKey_o=[]# for testing word only 
-                emissionkey_w = sentence[l][0] + "->" + self.tagStateDict[tag_to]
+                emissionkey_w = sentence[l][0] + "===>" + self.tagStateDict[tag_to]
                 #print(emissionkey_w)
                 
                 if sentence[l][0] not in self.AllWordsDict.values(): 
                     #print("word not found in features")
                     if not list_of_emissionKey_o:
-                        if wordCount[sentence[l][0]]<2:
+                        if wordCount[str(sentence[l])]<2:
                             #print("word is RARE")
-                            emissionkey_rare = "_RARE_" + "->" + self.tagStateDict[tag_to]
+                            emissionkey_rare = "_RARE_" + "===>" + self.tagStateDict[tag_to]
                             if emissionkey_rare in self.emissionProbDict:
                                 calEmission=self.emissionProbDict[emissionkey_rare]
                             for emissionkey in list_of_emissionKey_o:
@@ -137,7 +136,7 @@ class ModelDecode:
             
         for t in range(length,0, -1):
             best = backtrack[t-1]            
-            path[0:0] = [sentence[t-1][0]+"->"+self.tagStateDict[best]]  #   for "push"  to first in list since back tracing    
+            path[0:0] = [str(sentence[t-1])+"===>"+self.tagStateDict[best]]  #   for "push"  to first in list since back tracing    
         #print(path)
         return (path)
 
@@ -156,10 +155,10 @@ class ModelDecode:
             #line=ast.literal_eval(line)            
             #for l in line:
             #print(line)
-            if line[2][0] in wordCount:
-                wordCount[line[2][0]]=wordCount[line[2][0]]+1
+            if str(line[2]) in wordCount:
+                wordCount[str(line[2])]=wordCount[str(line[2])]+1
             else:
-                wordCount[line[2][0]]=1
+                wordCount[str(line[2])]=1
         #print(wordCount)     
         for line in  self.rawInput: 
             if "START" in line[0]:                
