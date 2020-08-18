@@ -25,9 +25,10 @@ class ModelDecode:
     Viterbi(self, rawSentence)
         Starts the decoding line by line for the input raw corpus.
     """
-    def __init__(self,corpus_name,configNo, rawcorpus,transitionProbDict,emissionProbDict,forwardtagcount): 
+    def __init__(self,corpus_name,corpus_name_test,configNo, rawcorpus,transitionProbDict,emissionProbDict,forwardtagcount): 
         self.conf=configNo
         self.corpus=corpus_name
+        self.corpus2=corpus_name_test
         self.transitionProbDict = transitionProbDict
         self.emissionProbDict = emissionProbDict        
         self.outgoingTagCountDict = forwardtagcount         
@@ -48,7 +49,7 @@ class ModelDecode:
         #print(self.tagStateDict)
         self.noOfTag=len(self.tagStateDict)        
         self.rawInput=pickle.load(open(rawcorpus,"rb"))
-        oname="output_test/"+self.corpus+"_"+self.conf+"_firstOrder_output"+".txt"
+        oname="output_test/"+self.corpus+"_"+self.corpus2+"_"+self.conf+"_firstOrder_output"+".txt"
         print(oname)
         self.outFile = open(oname,'+w') 
     
