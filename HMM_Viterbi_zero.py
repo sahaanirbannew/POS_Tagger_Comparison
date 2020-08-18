@@ -25,9 +25,10 @@ class ModelDecode:
     Viterbi(self, rawSentence)
         Starts the decoding line by line for the input raw corpus.
     """
-    def __init__(self,corpus_name,configNo, rawcorpus,transitionProbDict,emissionProbDict,forwardtagcount): 
+    def __init__(self,corpus_name,corpus_name_test,configNo, rawcorpus,transitionProbDict,emissionProbDict,forwardtagcount): 
         self.conf=configNo
         self.corpus=corpus_name
+        self.corpus2=corpus_name_test
         self.transitionProbDict = transitionProbDict
         print(type(self.transitionProbDict))
         self.emissionProbDict = emissionProbDict        
@@ -47,7 +48,7 @@ class ModelDecode:
         self.noOfTag=len(self.tagStateDict)
         self.rawInput=pickle.load(open(rawcorpus,"rb"))
         #print(self.rawInput)
-        oname="output_test/"+self.corpus+"_"+self.conf+"_zeroOrder_output"+".txt"
+        oname="output_test/"+self.corpus+"_"+self.corpus2+"_"+self.conf+"_zeroOrder_output"+".txt"
         self.outFile = open(oname,'+w')  
     
     def emission_probability_calculation(self,featureList,tag):
@@ -82,7 +83,8 @@ class ModelDecode:
         backtrack = [0 for y in range(length)]
         #print(viterbi)
         #print(backtrack)
-        path=[]        
+        path=[]
+        
 
         for l in range(0,length):#recursion step
             for tag_to in self.tagStateDict.keys():
