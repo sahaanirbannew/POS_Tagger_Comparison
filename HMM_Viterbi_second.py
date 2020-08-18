@@ -25,13 +25,12 @@ class ModelDecode:
     Viterbi(self, rawSentence)
         Starts the decoding line by line for the input raw corpus.
     """
-    def __init__(self,corpus_name,configNo, rawcorpus,transitionProbDict,emissionProbDict,forwardtagcount):
+    def __init__(self,corpus_name,corpus_name_test,configNo, rawcorpus,transitionProbDict,emissionProbDict,forwardtagcount):
         self.conf=configNo
         self.corpus=corpus_name
+        self.corpus2=corpus_name_test
         self.transitionProbDict = transitionProbDict
-        self.emissionProbDict = emissionProbDict  
-        #print(self.emissionProbDict)
-        #print(self.transitionProbDict)
+        self.emissionProbDict = emissionProbDict        
         self.outgoingTagCountDict = forwardtagcount         
         fname="features/"+self.conf+"/"+"features"+"_"+self.corpus+"_train"+".pkl"
         self.AllWordsDict_Inv=pickle.load(open(fname,"rb"))        
@@ -48,14 +47,15 @@ class ModelDecode:
         self.tagStateDict = { i : values[i] for i in range(0, len(values) ) }        
         self.noOfTag=len(self.tagStateDict)        
         self.rawInput=pickle.load(open(rawcorpus,"rb"))
-        oname="output_test/"+self.corpus+"_"+self.conf+"_output"+".txt"
+        oname="output_test/"+self.corpus+"_"+self.corpus2+"_"+self.conf+"_secondOrder_output"+".txt"
+        print(oname)
         self.outFile = open(oname,'+w')  
     
     def emission_probability_calculation(self,featureList,tag):
         list_of_emissionKey = []
-        #list_of_emissionKey.append(featureList[0]+"->"+tag) 
+        #list_of_emissionKey.append(featureList[0]+"===>"+tag) 
         for f in featureList[1:]:
-            list_of_emissionKey.append(f+"->"+tag) 
+            list_of_emissionKey.append(f+"===>"+tag) 
         #print(list_of_emissionKey)
         return list_of_emissionKey
 
@@ -66,12 +66,12 @@ class ModelDecode:
             """
             Description:- Decode line by line the entire corpus
             Input:- class attributes and each sentence from corpus
-            output:- word-->tag for each sentence
+            output:- word-===>tag for each sentence
             """
             
             
                   
-            words = rawSentence #list of words
+            words = [x for x in rawSentence if x != []] #list of words
             #print("--------------sentence ---------------")
             #print(sentence)
             #print(len(rawSentence))
@@ -91,27 +91,28 @@ class ModelDecode:
             for k in range(1,length+1):
                 for u in range(tagCount):
                     for v in range(tagCount):
-                        emissionkey_w = words[k-1][0] + "->" + self.tagStateDict[v]                        
+                        emissionkey_w = words[k-1][0] + "===>" + self.tagStateDict[v]                        
                         list_of_emissionKey_o=[]
                         list_of_emissionKey_o=ModelDecode.emission_probability_calculation(self,words[k-1],self.tagStateDict[v])
                         pimatrix[k][u][v] = 0
                         arg = 0
                         for w in range(tagCount):
                             temp = 0                            
-                            transitionkey = self.tagStateDict[w] + "->" + self.tagStateDict[u]+"->"+ self.tagStateDict[v] 
+                            transitionkey = self.tagStateDict[w] + "===>" + self.tagStateDict[u]+"===>"+ self.tagStateDict[v] 
                             if transitionkey in self.transitionProbDict:
                                 calTransition = self.transitionProbDict[transitionkey]                            
                                 if words[k-1][0] not in self.AllWordsDict.values():
                                     calEmission=1
                                     if not list_of_emissionKey_o:
-                                        if wordCount[words[k-1][0]]<2:
-                                            emissionkey_rare = "_RARE_" + "->" + self.tagStateDict[v]
+                                        if wordCount[str(words[k-1])]<2:
+                                            emissionkey_rare = "_RARE_" + "===>" + self.tagStateDict[v]
                                             if emissionkey_rare in self.emissionProbDict:
-                                                calEmission=calEmission+self.emissionProbDict[emissionkey_rare]
+                                                calEmission=self.emissionProbDict[emissionkey_rare]
                                     else:
                                         for emissionkey in list_of_emissionKey_o:
                                              if emissionkey in self.emissionProbDict.keys():
-                                                calEmission = calEmission+(calEmission * self.emissionProbDict[emissionkey])
+                                                #calEmission = calEmission+(calEmission * self.emissionProbDict[emissionkey])
+                                                calEmission = (calEmission * self.emissionProbDict[emissionkey])
                                              
                                 elif emissionkey_w not in self.emissionProbDict.keys():
                                     calEmission =0
@@ -120,7 +121,8 @@ class ModelDecode:
                                     calEmission=self.emissionProbDict[emissionkey_w]
                                     for emissionkey in list_of_emissionKey_o:                    
                                         if emissionkey in self.emissionProbDict.keys():
-                                            calEmission = calEmission+(calEmission * self.emissionProbDict[emissionkey])
+                                            #calEmission = calEmission+(calEmission * self.emissionProbDict[emissionkey])
+                                            calEmission = (calEmission * self.emissionProbDict[emissionkey])
                             
                             
                                 temp=pimatrix[k-1][w][u] * calTransition * calEmission
@@ -136,7 +138,7 @@ class ModelDecode:
             curr = 0
             for u in range(tagCount):
                 for v in range(tagCount):
-                    transitionkey = self.tagStateDict[u] + "->" + self.tagStateDict[v]+"->"+ 'STOP'
+                    transitionkey = self.tagStateDict[u] + "===>" + self.tagStateDict[v]+"===>"+ 'STOP'
                     if (transitionkey in self.transitionProbDict):
                         temp = pimatrix[length][u][v]*self.transitionProbDict[transitionkey]
                         if(temp > curr):
@@ -152,7 +154,7 @@ class ModelDecode:
         """
         Description:- Start of decoding .Calls viterbi() method for each sentence in corpus
         Input:- class attributes 
-        output:- word-->tag output from viterbi() for each sentence is written into file 
+        output:- word-===>tag output from viterbi() for each sentence is written into file 
         """
         print("start decoding")       
         listToStr=[]
@@ -160,10 +162,10 @@ class ModelDecode:
         wordCount={}
         #print(self.AllWordsDict.values())
         for line in self.rawInput:            
-            if line[2][0] in wordCount:
-                wordCount[line[2][0]]=wordCount[line[2][0]]+1
+            if str(line[2]) in wordCount:
+                wordCount[str(line[2])]=wordCount[str(line[2])]+1
             else:
-                wordCount[line[2][0]]=1
+                wordCount[str(line[2])]=1
         for line in  self.rawInput: 
             if "START" in line[0]:                
                 if len(listToStr)!=0:
@@ -173,7 +175,7 @@ class ModelDecode:
                     #print(path) 
                     outputSentence=[] 
                     for j in range(1,len(path)): 
-                        outputSentence.append(listToStr[j-1][0] + "->" + self.tagStateDict[path[j]])
+                        outputSentence.append(str(listToStr[j-1]) + "===>" + self.tagStateDict[path[j]])
                     self.outFile.write(str(outputSentence))
                     #print(outputSentence)
                     self.outFile.write('\n')
@@ -188,7 +190,7 @@ class ModelDecode:
         #print(path)
         outputSentence=[]
         for j in range(1,len(path)): 
-            outputSentence.append(listToStr[j-1][0] + "->" + self.tagStateDict[path[j]])
+            outputSentence.append(str(listToStr[j-1]) + "===>" + self.tagStateDict[path[j]])
         self.outFile.write(str(outputSentence))
         self.outFile.write('\n')                 
         print("end of decoding")
