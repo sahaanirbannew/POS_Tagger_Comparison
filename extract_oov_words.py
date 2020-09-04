@@ -85,34 +85,128 @@ genia_test_data_path = "datasets/dataset_genia_test.pkl"
 conll_train_data_path = "datasets/dataset_conll_train.pkl"
 conll_test_data_path = "datasets/dataset_conll_test.pkl"
 
-# Penn tree bank
+# Same Domain
+
+# Trained : Penn        Tested : Penn
+
 penn_test_oov_words, penn_train_vocabulary, penn_test_vocabulary = find_oov_words(
     penn_train_data_path, penn_test_data_path
 )
 
 penn_oov_word_tag_dict = find_oov_word_tags(penn_test_oov_words, penn_test_data_path)
 
-# pprint.pprint(penn_oov_word_tag_dict)
+pickle.dump(penn_oov_word_tag_dict, open("oov_words/penn_on_penn_oov_dict.pkl", "wb"))
 
-# Genia
+
+# Trained : Genia           Tested : Genia
+
 genia_test_oov_words, genia_train_vocabulary, genia_test_vocabulary = find_oov_words(
     genia_train_data_path, genia_test_data_path
 )
 
 genia_oov_word_tag_dict = find_oov_word_tags(genia_test_oov_words, genia_test_data_path)
 
-# pprint.pprint(genia_oov_word_tag_dict)
+pickle.dump(
+    genia_oov_word_tag_dict, open("oov_words/genia_on_genia_oov_dict.pkl", "wb")
+)
 
-# CoNLL
+
+# Trained : CoNLL           Tested : CoNLL
+
 conll_test_oov_words, conll_train_vocabulary, conll_test_vocabulary = find_oov_words(
     conll_train_data_path, conll_test_data_path
 )
 
 conll_oov_word_tag_dict = find_oov_word_tags(conll_test_oov_words, conll_test_data_path)
 
-# pprint.pprint(conll_oov_word_tag_dict)
+pickle.dump(
+    conll_oov_word_tag_dict, open("oov_words/conll_on_conll_oov_dict.pkl", "wb")
+)
 
-pickle.dump(penn_oov_word_tag_dict, open("oov_words/penn_oov_dict.pkl", "wb"))
-pickle.dump(genia_oov_word_tag_dict, open("oov_words/genia_oov_dict.pkl", "wb"))
-pickle.dump(conll_oov_word_tag_dict, open("oov_words/conll_oov_dict.pkl", "wb"))
+
+# Cross Domain
+
+# Trained : Penn     Tested : Genia
+
+penn_genia_test_oov_words, _, _ = find_oov_words(
+    penn_train_data_path, genia_test_data_path
+)
+
+penn_genia_oov_word_tag_dict = find_oov_word_tags(
+    penn_genia_test_oov_words, genia_test_data_path
+)
+
+pickle.dump(
+    penn_genia_oov_word_tag_dict, open("oov_words/penn_on_genia_oov_dict.pkl", "wb")
+)
+
+# Trained : Penn     Tested : CoNLL
+
+penn_conll_test_oov_words, _, _ = find_oov_words(
+    penn_train_data_path, conll_test_data_path
+)
+
+penn_conll_oov_word_tag_dict = find_oov_word_tags(
+    penn_conll_test_oov_words, conll_test_data_path
+)
+
+pickle.dump(
+    penn_conll_oov_word_tag_dict, open("oov_words/penn_on_conll_oov_dict.pkl", "wb")
+)
+
+# Trained : Genia    Tested : Penn
+
+genia_penn_test_oov_words, _, _ = find_oov_words(
+    genia_train_data_path, penn_test_data_path
+)
+
+genia_penn_oov_word_tag_dict = find_oov_word_tags(
+    genia_penn_test_oov_words, penn_test_data_path
+)
+
+pickle.dump(
+    genia_penn_oov_word_tag_dict, open("oov_words/genia_on_penn_oov_dict.pkl", "wb")
+)
+
+# Trained : Genia    Tested : CoNLL
+
+genia_conll_test_oov_words, _, _ = find_oov_words(
+    genia_train_data_path, conll_test_data_path
+)
+
+genia_conll_oov_word_tag_dict = find_oov_word_tags(
+    genia_conll_test_oov_words, conll_test_data_path
+)
+
+pickle.dump(
+    genia_conll_oov_word_tag_dict, open("oov_words/genia_on_conll_oov_dict.pkl", "wb")
+)
+
+# Trained : CoNLL    Tested : Penn
+
+conll_penn_test_oov_words, _, _ = find_oov_words(
+    conll_train_data_path, penn_test_data_path
+)
+
+conll_penn_oov_word_tag_dict = find_oov_word_tags(
+    conll_penn_test_oov_words, penn_test_data_path
+)
+
+pickle.dump(
+    conll_penn_oov_word_tag_dict, open("oov_words/conll_on_penn_oov_dict.pkl", "wb")
+)
+
+# Trained : CoNLL    Tested : Genia
+
+conll_genia_test_oov_words, _, _ = find_oov_words(
+    conll_train_data_path, genia_test_data_path
+)
+
+conll_genia_oov_word_tag_dict = find_oov_word_tags(
+    conll_genia_test_oov_words, genia_test_data_path
+)
+
+pickle.dump(
+    conll_genia_oov_word_tag_dict, open("oov_words/conll_on_genia_oov_dict.pkl", "wb")
+)
 
